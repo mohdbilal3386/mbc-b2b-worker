@@ -31,6 +31,7 @@ export type OverturePlace = {
 export type OvertureQuery = {
   bbox: [number, number, number, number]; // [minLng, minLat, maxLng, maxLat]
   categories?: string[];
+  name_terms?: string[];
   limit?: number;
 };
 
@@ -75,6 +76,12 @@ function number(value: unknown): number | null {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
+// Word-start match so "Price" does not match "rice", but "RiceMart" does.
+function nameTermPattern(term: string): string {
+  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s*");
+  return `(^|[^a-z])${escaped}`;
+}
+
 export async function queryOverture(
   input: OvertureQuery,
 ): Promise<{ release: string; places: OverturePlace[] }> {
@@ -91,6 +98,19 @@ export async function queryOverture(
   const categories = (input.categories ?? []).filter((c) => /^[a-z0-9_]+$/.test(c));
   const categoryFilter = categories.length
     ? `AND basic_category IN (${categories.map((c) => `'${c}'`).join(",")})`
+    : "";
+
+  const nameTerms = (input.name_terms ?? [])
+    .map((term) => term.trim().toLowerCase())
+    .filter((term) => term.length >= 3 && term.length <= 40 && /^[a-z0-9 ]+$/.test(term))
+    .slice(0, 20);
+  const nameFilter = nameTerms.length
+    ? `AND (${nameTerms
+        .map(
+          (term) =>
+            `regexp_matches(lower(coalesce(names.primary, '') || ' ' || coalesce(taxonomy.primary, '') || ' ' || coalesce(basic_category, '')), '${nameTermPattern(term)}')`,
+        )
+        .join(" OR ")})`
     : "";
 
   const release = await latestRelease();
@@ -118,6 +138,7 @@ export async function queryOverture(
       AND bbox.ymin < ${maxLat}
       AND bbox.ymax > ${minLat}
       ${categoryFilter}
+      ${nameFilter}
     LIMIT ${limit}
   `;
 
