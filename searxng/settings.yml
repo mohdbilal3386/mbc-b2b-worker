@@ -10,3 +10,23 @@ search:
   formats:
     - html
     - json
+
+# The default settings ship with most general engines disabled. Turn on the
+# ones that tend to work from datacenter IPs; others are blocked or CAPTCHA'd.
+engines:
+  - name: bing
+    disabled: false
+  - name: yahoo
+    disabled: false
+  - name: qwant
+    disabled: false
+  - name: brave
+    disabled: false
+  - name: duckduckgo
+    disabled: false
+  - name: google
+    disabled: false
+  - name: yep
+    disabled: false
+  - name: crowdview
+    disabled: false
