@@ -23,9 +23,6 @@ services:
       - key: WORKER_TOKEN
         sync: false
       - key: SEARXNG_INTERNAL_URL
-        fromService:
-          name: mbc-searxng
-          type: web
-          property: hostport
+        value: https://mbc-searxng-zhfg.onrender.com
       - key: PORT
         value: 8787

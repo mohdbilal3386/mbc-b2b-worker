@@ -19,8 +19,8 @@ Dashboard → **New + → Blueprint** → connect this repo. Render prompts for:
 - `SEARXNG_SECRET` — `openssl rand -hex 32`
 - `WORKER_TOKEN` — `openssl rand -hex 32` (32+ chars, required)
 
-The worker's `SEARXNG_INTERNAL_URL` is filled automatically from the SearXNG
-service's private `hostport`.
+The worker's `SEARXNG_INTERNAL_URL` points at the SearXNG service URL. If you
+rename the SearXNG service, update this value in `render.yaml`.
 
 ### Manual
 
