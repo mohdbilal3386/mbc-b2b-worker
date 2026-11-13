@@ -8,9 +8,14 @@ import { queryOverture, type OvertureQuery } from "./overture.js";
 
 const PORT = Number(process.env.PORT ?? 8787);
 const TOKEN = process.env.WORKER_TOKEN ?? "";
-const SEARXNG_INTERNAL_URL = (process.env.SEARXNG_INTERNAL_URL ?? "http://searxng:8080").replace(
-  /\/+$/,
-  "",
+// Render's `hostport` service property is host:port without a scheme.
+function searxngBaseUrl(raw: string): string {
+  const trimmed = raw.trim().replace(/\/+$/, "");
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `http://${trimmed}`;
+}
+
+const SEARXNG_INTERNAL_URL = searxngBaseUrl(
+  process.env.SEARXNG_INTERNAL_URL ?? "http://searxng:8080",
 );
 const MAX_BODY = 64 * 1024;
 const RATE_LIMIT = 120;

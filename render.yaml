@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: mbc-searxng
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./searxng/Dockerfile
+    dockerContext: ./searxng
+    healthCheckPath: /
+    envVars:
+      - key: SEARXNG_SECRET
+        sync: false
+
+  - type: web
+    name: mbc-b2b-worker
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: WORKER_TOKEN
+        sync: false
+      - key: SEARXNG_INTERNAL_URL
+        fromService:
+          name: mbc-searxng
+          type: web
+          property: hostport
+      - key: PORT
+        value: 8787
